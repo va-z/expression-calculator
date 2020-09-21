@@ -11,7 +11,7 @@ function eval() {
 function expressionCalculator(expr) {
   const topElem = (arr) => arr[arr.length - 1];
   const isEmpty = (arr) => arr.length === 0;
-  const isOper = (str) => ["*", "/", "+", "-"].includes(str);
+  const isOperator = (str) => ["*", "/", "+", "-"].includes(str);
   const precedence = {
       "*": 2,
       "/": 2,
@@ -29,16 +29,30 @@ function expressionCalculator(expr) {
       buffer = "";
     }
 
-    if (isOper(c)) {
-      if (isEmpty(opSt) || precedence[topElem(opSt)] < precedence[c]) opSt.push(c);
+    if (isOperator(c)) {
+      if (isEmpty(opSt) || topElem(opSt) === "(" || precedence[topElem(opSt)] < precedence[c]) opSt.push(c);
       else if (!isEmpty(opSt)) {
-        while (precedence[topElem(opSt)] >= precedence[c]) outQ.push(opSt.pop());
+        while (topElem !== "(" && precedence[topElem(opSt)] >= precedence[c]) {
+          outQ.push(opSt.pop());
+        }
         opSt.push(c);
       }
     }
+
+    if (c === "(") opSt.push(c);
+    else if (c === ")") {
+      while (topElem(opSt) !== "(") {
+        if (isEmpty(opSt)) throw `ExpressionError: Brackets must be paired`;
+        outQ.push(opSt.pop());
+      }
+      opSt.pop();
+    }
   }
   if (buffer) outQ.push(buffer);
-  while (opSt.length) outQ.push(opSt.pop());
+  while (opSt.length) {
+    if (topElem(opSt) === "(") throw `ExpressionError: Brackets must be paired`;
+    outQ.push(opSt.pop());
+  }
 
   console.log(outQ);
 }
