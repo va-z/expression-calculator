@@ -4,20 +4,21 @@ function eval() {
 }
 
 // oper - operator array
-// operSt - operator stack
-// operPrec - operator precedences
+// opSt - operator stack
+// precedence - operator precedence
 // outQ - output queue
 
 function expressionCalculator(expr) {
-  const onTop = (arr) => arr[arr.length - 1];
-  const oper = ["*", "/", "+", "-"],
-    operPrec = {
+  const topElem = (arr) => arr[arr.length - 1];
+  const isEmpty = (arr) => arr.length === 0;
+  const isOper = (str) => ["*", "/", "+", "-"].includes(str);
+  const precedence = {
       "*": 2,
       "/": 2,
       "+": 1,
       "-": 1,
     },
-    operSt = [],
+    opSt = [],
     outQ = [];
   let buffer = "";
 
@@ -27,8 +28,19 @@ function expressionCalculator(expr) {
       outQ.push(buffer);
       buffer = "";
     }
+
+    if (isOper(c)) {
+      if (isEmpty(opSt) || precedence[topElem(opSt)] < precedence[c]) opSt.push(c);
+      else if (!isEmpty(opSt)) {
+        while (precedence[topElem(opSt)] >= precedence[c]) outQ.push(opSt.pop());
+        opSt.push(c);
+      }
+    }
   }
   if (buffer) outQ.push(buffer);
+  while (opSt.length) outQ.push(opSt.pop());
+
+  console.log(outQ);
 }
 
 module.exports = {
